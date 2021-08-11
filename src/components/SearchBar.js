@@ -19,6 +19,7 @@ function SearchBar(props) {
             return;
         }
         setError("")
+        props.handleSearch({ type: searchType, keyword: value})
     }
 
     const changeSearchType = e => {

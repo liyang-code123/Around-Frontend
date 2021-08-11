@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, message } from 'antd';
+import { Tabs, message, Row, Col, Button } from 'antd';
 import axios from "axios";
 
 import SearchBar from "./SearchBar";
+import PhotoGallery from "./PhotoGallery";
 
 import { SEARCH_KEY, BASE_URL, TOKEN_KEY} from "../constants";
 
@@ -73,23 +74,61 @@ function Home(props) {
         }
 
         if (type === "image") {
-            return "images";
+            // prepare image data
+            const imageArr = posts
+                .filter( item => item.type === "image")
+                .map ( image => {
+                    return {
+                        postId: image.id,
+                        src: image.url,
+                        thumbnail: image.url,
+                        thumbnailWidth: 300,
+                        thumbnailHeight: 200,
+                        user: image.user,
+                        caption: image.message
+                    }
+                })
+            return <PhotoGallery images={imageArr}/>;
         }
 
         if (type === "video") {
-            return "videos";
+
+            return (
+                <Row gutter={32}>
+                    {
+                        posts
+                            .filter(post => post.type === "video")
+                            .map( post => (
+                                <Col span={3} key={post.url}>
+                                    <video src={post.url}
+                                        controls={true}
+                                        className="video-block"
+                                    />
+                                </Col>
+                            ))
+                    }
+                </Row>
+            )
         }
     }
 
+    const handleSearch =(option) => {
+       setSearchOption(option);
+    }
+
+    const operations = <Button>Upload</Button>;
+
     return (
         <div className="home">
-            <SearchBar />
+            <SearchBar handleSearch={handleSearch}/>
 
             <div className="display">
                 <Tabs
                     defaultActiveKey="image"
                     activeKey={activeTab}
                     onChange={() => setActiveTab()}
+                    tabBarExtraContent={operations}
+
                 >
                     <TabPane tab="Images" key="image">
                         { renderPosts("image") }
